@@ -10,3 +10,7 @@ egui_glfw_gl = { git = "https://github.com/shivang51/egui_glfw_gl", version = "0
 ffmpeg-sys-next = "6.0.1"
 gl = "0.14.0"
 glfw = "0.51.0"
+imgui = "0.11.0"
+imgui-glfw-support = { git = "https://github.com/shivang51/imgui-glfw-support.git", version = "0.4.1" }
+imgui-opengl-renderer = { git = "https://github.com/shivang51/rust-imgui-opengl-renderer", version = "0.12.0" }
+parking_lot = "0.12.1"

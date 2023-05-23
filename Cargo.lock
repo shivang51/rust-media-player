@@ -173,6 +173,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
+name = "chlorine"
+version = "1.0.10"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "75476fe966a8af7c0ceae2a3e514afa87d4451741fcdfab8bfaa07ad301842ec"
+
+[[package]]
 name = "chrono"
 version = "0.4.24"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -559,6 +565,49 @@ dependencies = [
 ]
 
 [[package]]
+name = "imgui"
+version = "0.11.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "122d677d0efcd64ca15f12907beaf46b26bbd2cdc855ee5b227f29cf50f75bb5"
+dependencies = [
+ "bitflags",
+ "cfg-if 1.0.0",
+ "imgui-sys",
+ "mint",
+ "parking_lot 0.12.1",
+]
+
+[[package]]
+name = "imgui-glfw-support"
+version = "0.4.1"
+source = "git+https://github.com/shivang51/imgui-glfw-support.git#92a5388c74081313c56ab7e61dfe6333b69bd2f6"
+dependencies = [
+ "glfw",
+ "imgui",
+]
+
+[[package]]
+name = "imgui-opengl-renderer"
+version = "0.12.0"
+source = "git+https://github.com/shivang51/rust-imgui-opengl-renderer#ec6b8de55124f6e69b26653c6191ec6f76d02508"
+dependencies = [
+ "gl_generator",
+ "imgui",
+]
+
+[[package]]
+name = "imgui-sys"
+version = "0.11.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d785272a57cb8058a53a1e6f376f48e2ec4f40fbc6a9bb197dabf7b6b59c03bf"
+dependencies = [
+ "cc",
+ "cfg-if 1.0.0",
+ "chlorine",
+ "mint",
+]
+
+[[package]]
 name = "indexmap"
 version = "1.9.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -688,6 +737,10 @@ dependencies = [
  "ffmpeg-sys-next",
  "gl",
  "glfw",
+ "imgui",
+ "imgui-glfw-support",
+ "imgui-opengl-renderer",
+ "parking_lot 0.12.1",
 ]
 
 [[package]]
@@ -735,6 +788,12 @@ checksum = "b275950c28b37e794e8c55d88aeb5e139d0ce23fdbbeda68f8d7174abdf9e8fa"
 dependencies = [
  "adler",
 ]
+
+[[package]]
+name = "mint"
+version = "0.5.9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e53debba6bda7a793e5f99b8dacf19e626084f525f7829104ba9898f367d85ff"
 
 [[package]]
 name = "nix"

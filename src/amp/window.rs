@@ -1,6 +1,5 @@
-use glfw::{Context, WindowEvent};
-
 use super::renderer::renderer::Renderer;
+use glfw::{Context, WindowEvent};
 
 extern crate glfw;
 

@@ -1,11 +1,9 @@
-use egui_glfw_gl::egui::Color32;
-
-use super::renderer::renderer;
+use super::renderer::renderer::{Draw, Renderer};
 use super::window::{self, EventCallback, Window};
-use crate::libamp::media_file::MediaFile;
+use glfw::WindowEvent;
 
 pub struct App {
-    renderer: renderer::Renderer,
+    renderer: Renderer,
     main_window: window::Window,
 }
 
@@ -24,55 +22,20 @@ impl App {
 
         self.renderer.init(self.main_window.get_glfw_hwnd());
 
-        let mut file: MediaFile = Default::default();
-
-        file.open(String::from("F:\\Videos\\1.mp4"));
-
-        unsafe {
-            gl::Enable(gl::BLEND);
-            gl::ClearColor(0.11, 0.11, 0.11, 1.0);
-        }
-
-        let frame = file.decoder.get_video_frame(10.0);
-
-        self.renderer.egui_renderer.frame_data.resize(
-            (frame.width * frame.height) as usize,
-            Color32::from_rgb(0, 0, 0),
-        );
-
-        for i in 0..(frame.width * frame.height) {
-            unsafe {
-                let px = *(frame.data[0].offset(i as isize));
-                self.renderer.egui_renderer.frame_data[i as usize] = Color32::from_rgb(px, px, px)
-            }
-        }
-
-        self.renderer
-            .egui_renderer
-            .init_video_frame(frame.width as usize, frame.height as usize);
-
         while self.main_window.is_open() {
             self.clear();
 
-            self.renderer.begin(&self.main_window.get_glfw_hwnd());
-
-            self.renderer.render();
-
-            self.renderer.end();
+            self.renderer.render(self.main_window.get_glfw_hwnd());
 
             self.update();
-        }
-
-        if file.is_open() {
-            file.close();
         }
     }
 
     /// swap buffers and handle the events
     fn update(&mut self) {
-        self.main_window.event_callback(&mut self.renderer);
         self.main_window.swap_buffers();
         self.main_window.wait_events();
+        self.main_window.event_callback(&mut self.renderer);
     }
 
     fn clear(&self) {
@@ -83,9 +46,58 @@ impl App {
 }
 
 impl EventCallback for Window {
-    fn event_callback(&mut self, renderer: &mut renderer::Renderer) {
-        for (_timestamp, event) in glfw::flush_messages(self.events.as_ref().unwrap()) {
-            renderer.update(event);
+    fn event_callback(&mut self, renderer: &mut Renderer) {
+        let events: Vec<(f64, WindowEvent)> =
+            glfw::flush_messages(self.events.as_ref().unwrap()).collect();
+        for (_timestamp, event) in events {
+            renderer.update(&event, self.get_glfw_hwnd());
         }
+    }
+}
+
+impl Draw for Renderer {
+    fn draw_ui(&mut self) {
+        let id = self.get_frame_tex_id();
+        let ui = self.get_ui_mut();
+
+        if let Some(wt) = ui
+            .window("Frame")
+            .size([100.0, 50.0], imgui::Condition::FirstUseEver)
+            .begin()
+        {
+            ui.button("Hi");
+            let pos = ui.window_pos();
+            let draw_list = ui.get_window_draw_list();
+            draw_list
+                .add_circle(
+                    [pos[0] + 50.0, pos[1] + 25.0],
+                    25.0,
+                    imgui::ImColor32::from_rgb(200, 200, 200),
+                )
+                .build();
+            wt.end();
+        };
+
+        if let Some(wt) = ui
+            .window("Frame 1")
+            .size([100.0, 50.0], imgui::Condition::FirstUseEver)
+            .begin()
+        {
+            ui.button("Hi");
+            let pos = ui.window_pos();
+            let draw_list = ui.get_window_draw_list();
+            draw_list
+                .add_circle(
+                    [pos[0] + 50.0, pos[1] + 25.0],
+                    25.0,
+                    imgui::ImColor32::from_rgb(200, 200, 200),
+                )
+                .build();
+            wt.end();
+        };
+        // let image_size = [300.0, 300.0];
+        // let uv_min = [0.0, 0.0];
+        // let uv_max = [1.0, 1.0];
+        // draw_list.add_image(id, uv_min, uv_max).build();
     }
 }

@@ -1,171 +1,15 @@
-use std::default::Default;
-use std::time::Instant;
-
-use egui_backend::egui::{vec2, Pos2, Rect};
-
-use super::opengl::opengl;
-use egui_backend::{egui, EguiInputState};
-use egui_glfw_gl as egui_backend;
-use egui_glfw_gl::egui::Color32;
-
-pub struct EGuiRenderer {
-    egui_input_state: Option<EguiInputState>,
-    egui_ctx: egui::Context,
-    start_time: Instant,
-    painter: Option<egui_glfw_gl::Painter>,
-    frame_tex_id: egui::TextureId,
-    pub frame_data: Vec<Color32>,
-    width: usize,
-    height: usize,
-}
-
-impl Default for EGuiRenderer {
-    fn default() -> Self {
-        return EGuiRenderer {
-            egui_input_state: None,
-            egui_ctx: egui::Context::default(),
-            start_time: Instant::now(),
-            painter: None,
-            frame_tex_id: egui::TextureId::default(),
-            frame_data: vec![Color32::GREEN],
-            width: 0,
-            height: 0,
-        };
-    }
-}
-
-impl EGuiRenderer {
-    fn init(&mut self, window: &mut glfw::Window) {
-        self.painter = Some(egui_backend::Painter::new(window));
-        self.egui_ctx = egui::Context::default();
-
-        let (width, height) = window.get_framebuffer_size();
-        let native_pixels_per_point = window.get_content_scale().0;
-
-        let egui_input_state = EguiInputState::new(egui::RawInput {
-            screen_rect: Some(Rect::from_min_size(
-                Pos2::new(0f32, 0f32),
-                vec2(width as f32, height as f32) / native_pixels_per_point,
-            )),
-            pixels_per_point: Some(native_pixels_per_point),
-            ..Default::default()
-        });
-
-        self.egui_input_state = Some(egui_input_state);
-
-        self.start_time = Instant::now();
-
-        // println!("{}", srgba.len());
-    }
-
-    pub fn init_video_frame(&mut self, width: usize, height: usize) {
-        self.width = width;
-        self.height = height;
-
-        self.frame_tex_id = self.painter.as_mut().unwrap().new_user_texture(
-            (self.width, self.height),
-            &self.frame_data,
-            egui::TextureFilter::Linear,
-        );
-
-        // self.painter
-        //     .as_mut()
-        //     .unwrap()
-        //     .update_user_texture_data(&self.frame_tex_id, &self.frame_data);
-    }
-
-    fn begin(&mut self, window: &glfw::Window) {
-        let egui_input_state = self.egui_input_state.as_mut().unwrap();
-        let native_pixels_per_point = window.get_content_scale().0;
-
-        let (width, height) = window.get_framebuffer_size();
-
-        egui_input_state.input.screen_rect = Some(Rect::from_min_size(
-            Pos2::new(0f32, 0f32),
-            vec2(width as f32, height as f32) / native_pixels_per_point,
-        ));
-
-        egui_input_state.input.time = Some(self.start_time.elapsed().as_secs_f64());
-        egui_input_state.input.pixels_per_point = Some(native_pixels_per_point);
-        self.egui_ctx.begin_frame(egui_input_state.input.take());
-    }
-
-    fn end(&mut self) {
-        let egui::FullOutput {
-            platform_output,
-            repaint_after: _,
-            textures_delta,
-            shapes,
-        } = self.egui_ctx.end_frame();
-
-        if !platform_output.copied_text.is_empty() {
-            egui_backend::copy_to_clipboard(
-                self.egui_input_state.as_mut().unwrap(),
-                platform_output.copied_text,
-            );
-        }
-
-        let clipped_shapes = self.egui_ctx.tessellate(shapes);
-        self.painter.as_mut().unwrap().paint_and_update_textures(
-            1.0,
-            &clipped_shapes,
-            &textures_delta,
-        );
-    }
-
-    fn draw(&mut self) {
-        egui::TopBottomPanel::top("Top")
-            .resizable(true)
-            .show(&self.egui_ctx, |ui| {
-                ui.set_width(1000.0);
-
-                ui.menu_button("File", |ui| {
-                    {
-                        let _ = ui.button("test 1");
-                    }
-                    ui.separator();
-                    {
-                        let _ = ui.button("test 2");
-                    }
-                });
-            });
-
-        // self.painter
-        //     .as_mut()
-        //     .unwrap()
-        //     .update_user_texture_data(&self.frame_tex_id, &self.frame_data);
-
-        egui::Window::new("Window")
-            .resizable(true)
-            .show(&self.egui_ctx, |ui| {
-                ui.set_width(ui.available_width());
-                if ui.button("Quit").clicked() {
-                    println!("Clicked!");
-                }
-                ui.add(egui::Image::new(
-                    self.frame_tex_id,
-                    vec2(300 as f32, 300 as f32),
-                ));
-            });
-    }
-
-    fn update_events(&mut self, event: glfw::WindowEvent) {
-        match event {
-            _ => {
-                egui_backend::handle_event(event, self.egui_input_state.as_mut().unwrap());
-            }
-        }
-    }
-}
+use super::{imgui_renderer::ImGuiRenderer, opengl::opengl};
 
 pub struct Renderer {
-    pub egui_renderer: EGuiRenderer,
+    imgui_renderer: ImGuiRenderer,
+    pub frame_texture_id: imgui::TextureId,
 }
 
 impl Default for Renderer {
     fn default() -> Self {
         return Renderer {
-            egui_renderer: Default::default(),
+            imgui_renderer: Default::default(),
+            frame_texture_id: imgui::TextureId::new(0),
         };
     }
 }
@@ -173,22 +17,30 @@ impl Default for Renderer {
 impl Renderer {
     pub fn init(&mut self, window: &mut glfw::Window) {
         opengl::init(window);
-        self.egui_renderer.init(window);
+        self.imgui_renderer.init(window);
     }
 
-    pub fn render(&mut self) {
-        self.egui_renderer.draw();
+    pub fn init_tex(&mut self) {}
+
+    pub fn render(&mut self, window: &mut glfw::Window) {
+        self.imgui_renderer.begin(window);
+        self.draw_ui();
+        self.imgui_renderer.end(window);
     }
 
-    pub fn begin(&mut self, window: &glfw::Window) {
-        self.egui_renderer.begin(window);
+    pub fn update(&mut self, event: &glfw::WindowEvent, window: &glfw::Window) {
+        self.imgui_renderer.update(event, window);
     }
 
-    pub fn end(&mut self) {
-        self.egui_renderer.end();
+    pub fn get_ui_mut(&mut self) -> &mut imgui::Ui {
+        self.imgui_renderer.get_ui_mut()
     }
 
-    pub fn update(&mut self, event: glfw::WindowEvent) {
-        self.egui_renderer.update_events(event);
+    pub fn get_frame_tex_id(&mut self) -> imgui::TextureId {
+        self.frame_texture_id
     }
+}
+
+pub trait Draw {
+    fn draw_ui(&mut self);
 }
