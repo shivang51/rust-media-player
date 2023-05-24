@@ -1,3 +1,5 @@
+use crate::libamp::media_file::MediaFile;
+
 use super::renderer::renderer::{Draw, Renderer};
 use super::window::{self, EventCallback, Window};
 use glfw::WindowEvent;
@@ -21,6 +23,32 @@ impl App {
         self.main_window.init(String::from("AMP"), 800, 500);
 
         self.renderer.init(self.main_window.get_glfw_hwnd());
+
+        unsafe {
+            gl::Enable(gl::BLEND);
+            gl::ClearColor(0.11, 0.11, 0.11, 1.0);
+        }
+
+        let mut file = MediaFile::default();
+        file.open(String::from("F:\\Videos\\1.mp4"));
+
+        let frame = file.decoder.get_video_frame(10.0);
+
+        let mut data: Vec<u8> = vec![0];
+        data.resize((frame.width * frame.height * 3) as usize, 255);
+
+        let mut i: usize = 0;
+        while i < ((frame.height * frame.width) as usize) {
+            let px = unsafe { *(frame.data[0].offset(i as isize)) };
+            data[i] = px;
+            data[i + 1] = px;
+            data[i + 2] = px;
+            i += 3;
+        }
+
+        self.renderer
+            .frame_texture
+            .send_data(frame.width, frame.height, data);
 
         while self.main_window.is_open() {
             self.clear();
@@ -69,32 +97,16 @@ impl Draw for Renderer {
             let pos = ui.window_pos();
             let draw_list = ui.get_window_draw_list();
             draw_list
-                .add_circle(
-                    [pos[0] + 50.0, pos[1] + 25.0],
-                    25.0,
-                    imgui::ImColor32::from_rgb(200, 200, 200),
+                .add_image_rounded(
+                    id,
+                    [pos[0] + 0.0, pos[1] + 0.0],
+                    [pos[0] + 300.0, pos[1] + 300.0],
+                    32.0,
                 )
                 .build();
             wt.end();
         };
 
-        if let Some(wt) = ui
-            .window("Frame 1")
-            .size([100.0, 50.0], imgui::Condition::FirstUseEver)
-            .begin()
-        {
-            ui.button("Hi");
-            let pos = ui.window_pos();
-            let draw_list = ui.get_window_draw_list();
-            draw_list
-                .add_circle(
-                    [pos[0] + 50.0, pos[1] + 25.0],
-                    25.0,
-                    imgui::ImColor32::from_rgb(200, 200, 200),
-                )
-                .build();
-            wt.end();
-        };
         // let image_size = [300.0, 300.0];
         // let uv_min = [0.0, 0.0];
         // let uv_max = [1.0, 1.0];

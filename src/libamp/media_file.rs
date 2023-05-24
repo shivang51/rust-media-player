@@ -46,6 +46,8 @@ impl MediaFile {
 
 impl Drop for MediaFile {
     fn drop(&mut self) {
-        self.close();
+        if self.is_open() {
+            self.close();
+        }
     }
 }
