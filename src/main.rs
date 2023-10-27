@@ -1,5 +1,5 @@
-mod libamp;
 mod amp;
+mod libamp;
 
 use crate::amp::app::App;
 

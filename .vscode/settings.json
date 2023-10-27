@@ -1,7 +1,5 @@
 {
-    "rust-analyzer.linkedProjects": [
-        ".\\Cargo.toml",
-    ],
-    "rust-analyzer.showUnlinkedFileNotification": false,
-    "ffmpeg_out": ".\\target\\debug\\build\\ffmpeg-sys-next-f1cbfc0cfe427256\\out",
+  "rust-analyzer.linkedProjects": [".\\Cargo.toml"],
+  "rust-analyzer.showUnlinkedFileNotification": false,
+  "ffmpeg_out": "C:\\Program Files\\FFmpeg\\lib"
 }

@@ -29,26 +29,26 @@ impl App {
             gl::ClearColor(0.11, 0.11, 0.11, 1.0);
         }
 
-        let mut file = MediaFile::default();
-        file.open(String::from("F:\\Videos\\1.mp4"));
+        // let mut file = MediaFile::default();
+        // file.open(String::from("F:\\Videos\\1.mp4"));
 
-        let frame = file.decoder.get_video_frame(10.0);
+        // let frame = file.decoder.get_video_frame(10.0);
 
-        let mut data: Vec<u8> = vec![0];
-        data.resize((frame.width * frame.height * 3) as usize, 255);
+        // let mut data: Vec<u8> = vec![0];
+        // data.resize((frame.width * frame.height * 3) as usize, 255);
 
-        let mut i: usize = 0;
-        while i < ((frame.height * frame.width) as usize) {
-            let px = unsafe { *(frame.data[0].offset(i as isize)) };
-            data[i] = px;
-            data[i + 1] = px;
-            data[i + 2] = px;
-            i += 3;
-        }
+        // let mut i: usize = 0;
+        // while i < ((frame.height * frame.width) as usize) {
+        //     let px = unsafe { *(frame.data[0].offset(i as isize)) };
+        //     data[i] = px;
+        //     data[i + 1] = px;
+        //     data[i + 2] = px;
+        //     i += 3;
+        // }
 
-        self.renderer
-            .frame_texture
-            .send_data(frame.width, frame.height, data);
+        // self.renderer
+        //     .frame_texture
+        //     .send_data(frame.width, frame.height, data);
 
         while self.main_window.is_open() {
             self.clear();

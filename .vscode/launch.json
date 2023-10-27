@@ -1,56 +1,52 @@
 {
-    "configurations": [
-        {
-            "type": "lldb",
-            "request": "launch",
-            "name": "Debug executable 'media_player'",
-            "cargo": {
-                "args": [
-                    "build",
-                    "--bin=media_player",
-                    "--package=media_player"
-                ],
-                "filter": {
-                    "name": "media_player",
-                    "kind": "bin"
-                },
-                "problemMatcher": "$rustc"
-            },
-            "args": [],
-            "cwd": "${workspaceFolder}",
-            "env": {
-                "PATH": "${config:ffmpeg_out};${env:PATH}"
-            }, 
+  "configurations": [
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug executable 'media_player'",
+      "cargo": {
+        "args": ["build", "--bin=media_player", "--package=media_player"],
+        "filter": {
+          "name": "media_player",
+          "kind": "bin"
         },
-        {
-            "type": "lldb",
-            "request": "launch",
-            "name": "Debug unit tests in executable 'media_player'",
-            "cargo": {
-                "args": [
-                    "test",
-                    "--no-run",
-                    "--bin=media_player",
-                    "--package=media_player"
-                ],
-                "filter": {
-                    "name": "media_player",
-                    "kind": "bin"
-                }
-            },
-            "args": [],
-            "cwd": "${workspaceFolder}"
-        },
-        {
-            "name": "(Windows) Launch",
-            "type": "cppvsdbg",
-            "request": "launch",
-            "program": "${workspaceRoot}/target/debug/media_player.exe",
-            "args": [],
-            "stopAtEntry": false,
-            "cwd": "${workspaceFolder}",
-            "environment": [],
-            "console": "externalTerminal"
+        "problemMatcher": "$rustc"
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "PATH": "${config:ffmpeg_out};${env:PATH}"
+      }
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug unit tests in executable 'media_player'",
+      "cargo": {
+        "args": [
+          "test",
+          "--no-run",
+          "--bin=media_player",
+          "--package=media_player"
+        ],
+        "filter": {
+          "name": "media_player",
+          "kind": "bin"
         }
-    ]
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "(Windows) Launch",
+      "type": "cppvsdbg",
+      "request": "launch",
+      "program": "${workspaceRoot}/target/debug/media_player.exe",
+      "args": [],
+      "stopAtEntry": false,
+      "cwd": "${workspaceFolder}",
+      "environment": [],
+      "console": "externalTerminal"
+    }
+  ]
 }
